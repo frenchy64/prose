@@ -1,6 +1,4 @@
-(ns fr.jeremyschoffen.prose.alpha.document.sci.bindings
-  (:require
-    [meander.epsilon :as m :include-macros true]))
+(ns fr.jeremyschoffen.prose.alpha.document.sci.bindings)
 
 ;;----------------------------------------------------------------------------------------------------------------------
 ;; Sci namespace bindings helpers
@@ -26,9 +24,9 @@
 
   The vars are de-referenced and in the case of macros the `sci/macro` metadata is added."
   [m]
-  (m/rewrite m
-             (m/map-of !name !var)
-             (m/map-of !name (m/app var->binding !var))))
+  (into {}
+        (map (juxt key (comp var->binding val)))
+        m))
 
 
 (defmacro bindings
@@ -44,10 +42,10 @@
   "Make a namespaces bindings map.
   Typically used as `(sci/init {:namespaces (make-ns-bindings ns1 ns2)})`."
   [& nss]
-  (m/rewrite nss
-             (m/seqable (m/and !ns !ns') ...)
-             (m/map-of ('quote !ns)
-                       (`bindings !ns'))))
+  (into {}
+        (map (juxt #(list 'quote %)
+                   #(list `bindings %)))
+        nss))
 
 
 (comment

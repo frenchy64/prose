@@ -1,6 +1,5 @@
 (ns fr.jeremyschoffen.prose.alpha.docs.tags
   (:require
-    [meander.epsilon :as m]
     [fr.jeremyschoffen.mbt.alpha.utils :as u]
     [fr.jeremyschoffen.prose.alpha.document.lib :as lib]
     [fr.jeremyschoffen.prose.alpha.out.markdown.tags :as md]
@@ -22,9 +21,8 @@
   (let [coords  (:project/coords (lib/get-input))
         {mvn :maven
          git :git} coords
-        lein (m/find mvn
-                     {?n {:mvn/version ?v}}
-                     [?n ?v])]
+        lein ((juxt key (comp :mvn/version val))
+              mvn)]
     [(when mvn
        ["Deps coords:\n"
         (md/code-block {:content-type "clojure"}
