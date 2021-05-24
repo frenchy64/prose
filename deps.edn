@@ -27,4 +27,5 @@
                                meander/epsilon          {:mvn/version "RELEASE"}}}
 
            :build {:extra-paths ["build" "src/build"]
-                   :extra-deps {fr.jeremyschoffen/mbt-alpha {:mvn/version "14"}}}}}
+                   :extra-deps {fr.jeremyschoffen/mbt-alpha {:mvn/version "14"}
+                                meander/epsilon          {:mvn/version "RELEASE"}}}}}

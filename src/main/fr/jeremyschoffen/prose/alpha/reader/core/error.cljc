@@ -1,7 +1,6 @@
 (ns fr.jeremyschoffen.prose.alpha.reader.core.error
   (:require
     [net.cgrand.macrovich :as macro :include-macros true]
-    [meander.epsilon :as m]
     [fr.jeremyschoffen.prose.alpha.reader.grammar :as g]))
 
 
@@ -47,59 +46,32 @@
 
 (defn get-normalized-error-data [e]
   (letfn [(extract-reason [insta-reason]
-            (m/search insta-reason
-              (m/scan ?x)
-              (m/match ?x
-                {:tag :regexp
-                 :expecting ?regex}
-                (get error-msgs ?regex ?x)
-
-                {:tag :string
-                 :expecting ?str}
-                (str "the string \"" ?str "\"")
-
-
-                _
-                ?x)))]
-
-    (m/match (ex-data e)
-             {:type ::clojure-reader-error
-              :text ?text
-              :failure ?f
-              :region #:instaparse.gll{:start-index  ?start-index
-                                       :end-index    ?end-index
-                                       :start-line   ?start-line
-                                       :start-column ?start-column
-                                       :end-line     ?end-line
-                                       :end-column   ?end-column}}
-             {:type ::clojure-reader-error
-              :failure ?f
-              :start-index  ?start-index
-              :end-index    ?end-index
-              :start-line   ?start-line
-              :start-column ?start-column
-              :end-line     ?end-line
-              :end-column   ?end-column
-              :text ?text
-              :reason (ex-message ?f)}
-
-
-             {:type ::grammar-error
-              :failure (m/and ?f {:index  ?index
-                                  :reason ?reason
-                                  :line   ?line
-                                  :column ?column
-                                  :text   ?text})}
-             {:type ::grammar-error
-              :failure ?f
-              :end-index  ?index
-              :end-line   ?line
-              :end-column ?column
-              :text   ?text
-              :reason (extract-reason ?reason)}
-
-             _
-             (throw e))))
+            (map (fn [{:keys [expecting] :as r}]
+                   (case (:tag r)
+                     :regexp (get error-msgs expecting r)
+                     :string (str "the string \"" expecting "\"")
+                     r))
+                 insta-reason))
+          {:keys [failure] :as ed} (ex-data e)]
+    (or
+      (when failure
+        (case (:type ed)
+          ::clojure-reader-error
+          (when-some [region (::instaparse.gll/region ed)]
+            (-> ed
+                (dissoc :region)
+                (into region)
+                (assoc :reason (ex-message failure))))
+          ::grammar-error
+          (let [{:keys [index reason line column text]} failure]
+            (-> ed
+                (assoc :reason (extract-reason reason)
+                       :end-index index
+                       :end-line line
+                       :end-column column
+                       :text text)))
+          nil))
+      (throw e))))
 
 
 (defn normalize-error [e]
