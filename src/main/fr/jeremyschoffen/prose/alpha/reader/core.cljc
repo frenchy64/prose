@@ -15,8 +15,7 @@ The different syntactic elements are processed as follows:
 "}
   fr.jeremyschoffen.prose.alpha.reader.core
   (:require
-    #?@(:bb []
-        :default [edamame.core :as eda])
+    [edamame.core :as eda]
     [clojure.walk :as walk]
     [instaparse.core :as insta]
     [medley.core :as medley]
@@ -58,8 +57,7 @@ The different syntactic elements are processed as follows:
   "Wrapping of edamame's read-string function for use in our reader."
   [s]
   (try
-    #?@(:bb (read-string s)
-        :default (eda/parse-string s *reader-options*))
+    (eda/parse-string s *reader-options*)
     (catch #?@(:clj [Exception e] :cljs [js/Error e])
            (throw
              (ex-info "Reader failure."

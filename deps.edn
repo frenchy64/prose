@@ -1,8 +1,8 @@
 {:paths ["src/main"]
 
  :deps {instaparse/instaparse    {:mvn/version "1.4.10"}
-        borkdude/edamame         {:mvn/version "0.0.11-alpha.14"}
-        borkdude/sci {:mvn/version "0.1.1-alpha.9"}
+        borkdude/edamame         {:mvn/version "0.0.11"}
+        borkdude/sci             {:mvn/version "0.2.5"}
         medley/medley            {:mvn/version "1.3.0"}
         net.cgrand/macrovich     {:mvn/version "0.2.1"}
         lambdaisland/regal       {:mvn/version "0.0.89"}}
